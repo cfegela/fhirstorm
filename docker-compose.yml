@@ -48,6 +48,8 @@ services:
     restart: always
     ports:
       - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
     depends_on:
       - backend
     networks:
