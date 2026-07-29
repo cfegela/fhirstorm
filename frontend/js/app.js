@@ -587,6 +587,23 @@ const App = {
         }
     },
 
+    formatDateTime(dateStr) {
+        if (!dateStr) return 'N/A';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            return d.toLocaleString([], {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (e) {
+            return dateStr;
+        }
+    },
+
     getPatientNameFromReference(ref) {
         if (!ref) return 'N/A';
         const patientId = ref.startsWith('Patient/') ? ref.substring(8) : ref;
@@ -615,6 +632,7 @@ const App = {
             const tbody = document.querySelector('#observations-table tbody');
             tbody.innerHTML = obsList.map(o => {
                 const patientName = this.getPatientNameFromReference(o.subject?.reference);
+                const formattedDate = this.formatDateTime(o.effectiveDateTime);
                 return `
                     <tr>
                         <td><code>${o.id}</code></td>
@@ -622,7 +640,7 @@ const App = {
                         <td>${o.code?.coding?.[0]?.display || 'Observation'} (${o.code?.coding?.[0]?.code || ''})</td>
                         <td><strong>${o.valueQuantity ? o.valueQuantity.value + ' ' + (o.valueQuantity.unit || '') : 'See details'}</strong></td>
                         <td><span class="badge-status badge-active">${o.status}</span></td>
-                        <td>${o.effectiveDateTime || 'N/A'}</td>
+                        <td>${formattedDate}</td>
                         <td>
                             <button class="btn btn-sm btn-ghost text-danger" title="Delete" onclick="App.deleteObservation('${o.id}')">
                                 <i class="fa-solid fa-trash-can"></i>
@@ -644,6 +662,7 @@ const App = {
         const tbody = document.querySelector('#medications-table tbody');
         tbody.innerHTML = meds.map(m => {
             const patientName = this.getPatientNameFromReference(m.subject?.reference);
+            const formattedDate = this.formatDateTime(m.authoredOn);
             return `
                 <tr>
                     <td><code>${m.id}</code></td>
@@ -651,6 +670,7 @@ const App = {
                     <td>${m.medicationCodeableConcept?.coding?.[0]?.display || 'Medication'}</td>
                     <td>${m.intent || 'order'}</td>
                     <td><span class="badge-status badge-active">${m.status}</span></td>
+                    <td>${formattedDate}</td>
                     <td>
                         <button class="btn btn-sm btn-ghost text-danger" title="Delete" onclick="App.deleteMedication('${m.id}')">
                             <i class="fa-solid fa-trash-can"></i>
