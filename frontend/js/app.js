@@ -325,17 +325,12 @@ const App = {
             const email = p.telecom?.find(t => t.system === 'email')?.value || 'Not provided';
 
             return `
-                <div class="patient-card">
+                <div class="patient-card" onclick="App.openPatientDetail('${p.id}')">
                     <div class="card-top">
                         <span class="mrn-badge"><i class="fa-solid fa-id-card"></i> ${mrn}</span>
-                        <div class="btn-group">
-                            <span class="badge-r4">${gender.toUpperCase()}</span>
-                            <button class="btn btn-sm btn-ghost text-danger" title="Delete Patient" onclick="event.stopPropagation(); App.deletePatient('${p.id}')">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
+                        <span class="badge-r4">${gender.toUpperCase()}</span>
                     </div>
-                    <div onclick="App.openPatientDetail('${p.id}')" style="cursor:pointer;">
+                    <div class="card-body-content">
                         <h3 class="patient-name-h3">${fullName}</h3>
                         <div class="patient-meta-list">
                             <div class="patient-meta-item">
@@ -348,6 +343,14 @@ const App = {
                                 <i class="fa-solid fa-envelope"></i> ${email}
                             </div>
                         </div>
+                    </div>
+                    <div class="patient-card-footer">
+                        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); App.openPatientDetail('${p.id}')">
+                            <i class="fa-solid fa-folder-open"></i> Open Chart
+                        </button>
+                        <button class="btn btn-sm btn-danger" title="Delete Patient" onclick="event.stopPropagation(); App.deletePatient('${p.id}')">
+                            <i class="fa-solid fa-trash-can"></i> Delete
+                        </button>
                     </div>
                 </div>
             `;
