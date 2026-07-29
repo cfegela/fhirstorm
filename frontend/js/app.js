@@ -328,10 +328,10 @@ const App = {
                 <div class="patient-card">
                     <div class="card-top">
                         <span class="mrn-badge"><i class="fa-solid fa-id-card"></i> ${mrn}</span>
-                        <div>
+                        <div class="btn-group">
                             <span class="badge-r4">${gender.toUpperCase()}</span>
                             <button class="btn btn-sm btn-ghost text-danger" title="Delete Patient" onclick="event.stopPropagation(); App.deletePatient('${p.id}')">
-                                <i class="fa-solid fa-trash"></i>
+                                <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
                     </div>
@@ -405,12 +405,12 @@ const App = {
                     </div>
                 </div>
             </div>
-            <div>
+            <div class="btn-group">
                 <button class="btn btn-secondary" onclick="App.runFhirInspectorFor('${p.id}')">
                     <i class="fa-solid fa-code"></i> Inspect Raw FHIR JSON
                 </button>
                 <button class="btn btn-danger" onclick="App.deletePatient('${p.id}', true)">
-                    <i class="fa-solid fa-trash"></i> Delete Patient
+                    <i class="fa-solid fa-trash-can"></i> Delete Patient
                 </button>
             </div>
         `;
