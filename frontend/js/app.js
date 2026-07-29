@@ -587,8 +587,22 @@ const App = {
         }
     },
 
+    getPatientNameFromReference(ref) {
+        if (!ref) return 'N/A';
+        const patientId = ref.startsWith('Patient/') ? ref.substring(8) : ref;
+        const p = this.currentPatients.find(item => item.id === patientId);
+        if (!p) return ref;
+        const family = p.name?.[0]?.family || '';
+        const given = p.name?.[0]?.given?.join(' ') || '';
+        const fullName = `${given} ${family}`.trim();
+        return fullName || ref;
+    },
+
     async loadClinicalView() {
         try {
+            if (this.currentPatients.length === 0) {
+                await this.loadPatients();
+            }
             const obsList = await API.getObservations();
             const stats = document.getElementById('stats-overview');
             stats.innerHTML = `
@@ -599,62 +613,77 @@ const App = {
             `;
 
             const tbody = document.querySelector('#observations-table tbody');
-            tbody.innerHTML = obsList.map(o => `
-                <tr>
-                    <td><code>${o.id}</code></td>
-                    <td>${o.subject?.reference || 'N/A'}</td>
-                    <td>${o.code?.coding?.[0]?.display || 'Observation'} (${o.code?.coding?.[0]?.code || ''})</td>
-                    <td><strong>${o.valueQuantity ? o.valueQuantity.value + ' ' + (o.valueQuantity.unit || '') : 'See details'}</strong></td>
-                    <td><span class="badge-status badge-active">${o.status}</span></td>
-                    <td>${o.effectiveDateTime || 'N/A'}</td>
-                    <td>
-                        <button class="btn btn-sm btn-ghost text-danger" title="Delete" onclick="App.deleteObservation('${o.id}')">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = obsList.map(o => {
+                const patientName = this.getPatientNameFromReference(o.subject?.reference);
+                return `
+                    <tr>
+                        <td><code>${o.id}</code></td>
+                        <td><strong>${patientName}</strong></td>
+                        <td>${o.code?.coding?.[0]?.display || 'Observation'} (${o.code?.coding?.[0]?.code || ''})</td>
+                        <td><strong>${o.valueQuantity ? o.valueQuantity.value + ' ' + (o.valueQuantity.unit || '') : 'See details'}</strong></td>
+                        <td><span class="badge-status badge-active">${o.status}</span></td>
+                        <td>${o.effectiveDateTime || 'N/A'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-ghost text-danger" title="Delete" onclick="App.deleteObservation('${o.id}')">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         } catch (err) {
             console.error(err);
         }
     },
 
     async loadMedicationsView() {
+        if (this.currentPatients.length === 0) {
+            await this.loadPatients();
+        }
         const meds = await API.getMedicationRequests();
         const tbody = document.querySelector('#medications-table tbody');
-        tbody.innerHTML = meds.map(m => `
-            <tr>
-                <td><code>${m.id}</code></td>
-                <td>${m.subject?.reference || 'N/A'}</td>
-                <td>${m.medicationCodeableConcept?.coding?.[0]?.display || 'Medication'}</td>
-                <td>${m.intent || 'order'}</td>
-                <td><span class="badge-status badge-active">${m.status}</span></td>
-                <td>
-                    <button class="btn btn-sm btn-ghost text-danger" title="Delete" onclick="App.deleteMedication('${m.id}')">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = meds.map(m => {
+            const patientName = this.getPatientNameFromReference(m.subject?.reference);
+            return `
+                <tr>
+                    <td><code>${m.id}</code></td>
+                    <td><strong>${patientName}</strong></td>
+                    <td>${m.medicationCodeableConcept?.coding?.[0]?.display || 'Medication'}</td>
+                    <td>${m.intent || 'order'}</td>
+                    <td><span class="badge-status badge-active">${m.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-ghost text-danger" title="Delete" onclick="App.deleteMedication('${m.id}')">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     },
 
     async loadEncountersView() {
+        if (this.currentPatients.length === 0) {
+            await this.loadPatients();
+        }
         const encs = await API.getEncounters();
         const tbody = document.querySelector('#encounters-table tbody');
-        tbody.innerHTML = encs.map(e => `
-            <tr>
-                <td><code>${e.id}</code></td>
-                <td>${e.subject?.reference || 'N/A'}</td>
-                <td>${e.class?.display || e.class?.code || 'Ambulatory'}</td>
-                <td>${e.type?.[0]?.coding?.[0]?.display || 'Consultation'}</td>
-                <td><span class="badge-status badge-active">${e.status}</span></td>
-                <td>
-                    <button class="btn btn-sm btn-ghost text-danger" title="Delete" onclick="App.deleteEncounter('${e.id}')">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = encs.map(e => {
+            const patientName = this.getPatientNameFromReference(e.subject?.reference);
+            return `
+                <tr>
+                    <td><code>${e.id}</code></td>
+                    <td><strong>${patientName}</strong></td>
+                    <td>${e.class?.display || e.class?.code || 'Ambulatory'}</td>
+                    <td>${e.type?.[0]?.coding?.[0]?.display || 'Consultation'}</td>
+                    <td><span class="badge-status badge-active">${e.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-ghost text-danger" title="Delete" onclick="App.deleteEncounter('${e.id}')">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     },
 
     async loadCapabilitiesView() {
