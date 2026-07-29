@@ -542,6 +542,10 @@ body {
     color: var(--navy-primary);
 }
 
+#btn-back-to-patients {
+    margin-bottom: 1.5rem;
+}
+
 /* Patient Detail Banner */
 .patient-banner {
     background: linear-gradient(135deg, var(--navy-dark), var(--navy-primary));
