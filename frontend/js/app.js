@@ -30,16 +30,6 @@ const App = {
             });
         }
 
-        // Gender Filter Buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const gender = btn.dataset.gender;
-                this.filterByGender(gender);
-            });
-        });
-
         // Back to Patients Button
         const backBtn = document.getElementById('btn-back-to-patients');
         if (backBtn) {

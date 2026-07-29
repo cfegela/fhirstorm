@@ -76,10 +76,6 @@
                 </div>
 
                 <div class="topbar-actions">
-                    <button id="btn-new-patient" class="btn btn-primary">
-                        <i class="fa-solid fa-user-plus"></i>
-                        <span>New Patient</span>
-                    </button>
                     <button id="btn-new-obs" class="btn btn-secondary">
                         <i class="fa-solid fa-notes-medical"></i>
                         <span>Record Vitals</span>
@@ -109,11 +105,10 @@
                             <h1>Patient Directory</h1>
                             <p class="subtitle">Standardized FHIR R4 Patient Resources stored in PostgreSQL</p>
                         </div>
-                        <div class="filter-group">
-                            <button class="btn btn-outline filter-btn active" data-gender="all">All</button>
-                            <button class="btn btn-outline filter-btn" data-gender="female">Female</button>
-                            <button class="btn btn-outline filter-btn" data-gender="male">Male</button>
-                        </div>
+                        <button id="btn-new-patient" class="btn btn-primary">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>New Patient</span>
+                        </button>
                     </div>
 
                     <div class="patients-grid" id="patients-grid">
