@@ -1,3 +1,15 @@
+/**
+ * Escapes a string for safe insertion into HTML to prevent XSS.
+ * All dynamic values from the FHIR API must be passed through this
+ * before being used in innerHTML template literals.
+ */
+function escapeHtml(str) {
+    if (str == null) return '';
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(String(str)));
+    return d.innerHTML;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     Auth.init();
     App.init();
@@ -280,9 +292,10 @@ const App = {
         const select = document.getElementById(selectId);
         if (!select) return;
         select.innerHTML = this.currentPatients.map(p => {
-            const family = p.name?.[0]?.family || '';
-            const given = p.name?.[0]?.given?.[0] || '';
-            return `<option value="${p.id}">${given} ${family} (${p.id})</option>`;
+            const family = escapeHtml(p.name?.[0]?.family || '');
+            const given = escapeHtml(p.name?.[0]?.given?.[0] || '');
+            const id = escapeHtml(p.id);
+            return `<option value="${id}">${given} ${family} (${id})</option>`;
         }).join('');
     },
 
@@ -305,17 +318,18 @@ const App = {
         }
 
         grid.innerHTML = patients.map(p => {
-            const family = p.name?.[0]?.family || 'N/A';
-            const given = p.name?.[0]?.given?.join(' ') || '';
+            const family = escapeHtml(p.name?.[0]?.family || 'N/A');
+            const given = escapeHtml(p.name?.[0]?.given?.join(' ') || '');
             const fullName = `${given} ${family}`.trim();
-            const mrn = p.identifier?.[0]?.value || `MRN-${p.id}`;
-            const gender = p.gender || 'Unknown';
-            const dob = p.birthDate || 'N/A';
-            const phone = p.telecom?.find(t => t.system === 'phone')?.value || 'Not provided';
-            const email = p.telecom?.find(t => t.system === 'email')?.value || 'Not provided';
+            const gender = escapeHtml(p.gender || 'Unknown');
+            const dob = escapeHtml(p.birthDate || 'N/A');
+            const phone = escapeHtml(p.telecom?.find(t => t.system === 'phone')?.value || 'Not provided');
+            const email = escapeHtml(p.telecom?.find(t => t.system === 'email')?.value || 'Not provided');
+            // IDs are used in onclick attributes — escape for JS string safety
+            const safeId = encodeURIComponent(p.id);
 
             return `
-                <div class="patient-card" onclick="App.openPatientDetail('${p.id}')">
+                <div class="patient-card" onclick="App.openPatientDetail('${safeId}')">
                     <div class="card-body-content">
                         <h3 class="patient-name-h3">${fullName}</h3>
                         <div class="patient-meta-list">
@@ -334,10 +348,10 @@ const App = {
                         </div>
                     </div>
                     <div class="patient-card-footer">
-                        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); App.openPatientDetail('${p.id}')">
+                        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); App.openPatientDetail('${safeId}')">
                             <i class="fa-solid fa-folder-open"></i> Open Chart
                         </button>
-                        <button class="btn btn-sm btn-danger" title="Delete Patient" onclick="event.stopPropagation(); App.deletePatient('${p.id}')">
+                        <button class="btn btn-sm btn-danger" title="Delete Patient" onclick="event.stopPropagation(); App.deletePatient('${safeId}')">
                             <i class="fa-solid fa-trash-can"></i> Delete
                         </button>
                     </div>
@@ -387,20 +401,22 @@ const App = {
         const phone = p.telecom?.find(t => t.system === 'phone')?.value || 'Not provided';
         const email = p.telecom?.find(t => t.system === 'email')?.value || 'Not provided';
 
-        // Render Banner
+        const safePatientId = encodeURIComponent(p.id);
+
+        // Render Banner — escape all values from API before inserting into innerHTML
         const banner = document.getElementById('patient-banner');
         banner.innerHTML = `
             <div class="patient-banner-info">
                 <div class="patient-avatar-large"><i class="fa-solid fa-user-injured"></i></div>
                 <div class="banner-details">
-                    <h2>${fullName}</h2>
+                    <h2>${escapeHtml(fullName)}</h2>
                     <div class="banner-details-list">
-                        <div class="banner-detail-item"><i class="fa-solid fa-id-card"></i> <strong>MRN:</strong> ${mrn}</div>
-                        <div class="banner-detail-item"><i class="fa-solid fa-venus-mars"></i> <strong>Sex:</strong> ${gender}</div>
-                        <div class="banner-detail-item"><i class="fa-solid fa-calendar"></i> <strong>DOB:</strong> ${dob}</div>
-                        <div class="banner-detail-item"><i class="fa-solid fa-phone"></i> <strong>Phone:</strong> ${phone}</div>
-                        <div class="banner-detail-item"><i class="fa-solid fa-envelope"></i> <strong>Email:</strong> ${email}</div>
-                        <div class="banner-detail-item"><i class="fa-solid fa-hashtag"></i> <strong>FHIR ID:</strong> ${p.id}</div>
+                        <div class="banner-detail-item"><i class="fa-solid fa-id-card"></i> <strong>MRN:</strong> ${escapeHtml(mrn)}</div>
+                        <div class="banner-detail-item"><i class="fa-solid fa-venus-mars"></i> <strong>Sex:</strong> ${escapeHtml(gender)}</div>
+                        <div class="banner-detail-item"><i class="fa-solid fa-calendar"></i> <strong>DOB:</strong> ${escapeHtml(dob)}</div>
+                        <div class="banner-detail-item"><i class="fa-solid fa-phone"></i> <strong>Phone:</strong> ${escapeHtml(phone)}</div>
+                        <div class="banner-detail-item"><i class="fa-solid fa-envelope"></i> <strong>Email:</strong> ${escapeHtml(email)}</div>
+                        <div class="banner-detail-item"><i class="fa-solid fa-hashtag"></i> <strong>FHIR ID:</strong> ${escapeHtml(p.id)}</div>
                     </div>
                 </div>
             </div>
@@ -410,10 +426,10 @@ const App = {
         const actionsFooter = document.getElementById('patient-detail-actions');
         if (actionsFooter) {
             actionsFooter.innerHTML = `
-                <button class="btn btn-secondary" onclick="App.runFhirInspectorFor('${p.id}')">
+                <button class="btn btn-secondary" onclick="App.runFhirInspectorFor('${safePatientId}')">
                     <i class="fa-solid fa-code"></i> Inspect Raw FHIR JSON
                 </button>
-                <button class="btn btn-danger" onclick="App.deletePatient('${p.id}', true)">
+                <button class="btn btn-danger" onclick="App.deletePatient('${safePatientId}', true)">
                     <i class="fa-solid fa-trash-can"></i> Delete Patient
                 </button>
             `;
@@ -446,13 +462,13 @@ const App = {
                 return `
                     <div class="vital-card">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div class="vital-title">${title}</div>
-                            <button class="btn btn-sm btn-ghost text-danger" title="Delete Observation" onclick="App.deleteObservation('${o.id}', '${patientId}')">
+                            <div class="vital-title">${escapeHtml(title)}</div>
+                            <button class="btn btn-sm btn-ghost text-danger" title="Delete Observation" onclick="App.deleteObservation('${encodeURIComponent(o.id)}', '${safePatientId}')">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
-                        <div class="vital-value">${valStr}</div>
-                        <div class="vital-unit">${unitStr}</div>
+                        <div class="vital-value">${escapeHtml(valStr)}</div>
+                        <div class="vital-unit">${escapeHtml(unitStr)}</div>
                     </div>
                 `;
             }).join('');
@@ -466,12 +482,12 @@ const App = {
             condContainer.innerHTML = conditions.map(c => `
                 <div class="list-item">
                     <div>
-                        <div class="list-item-title">${c.code?.coding?.[0]?.display || 'Condition'}</div>
-                        <div class="list-item-sub">SNOMED: ${c.code?.coding?.[0]?.code || 'N/A'}</div>
+                        <div class="list-item-title">${escapeHtml(c.code?.coding?.[0]?.display || 'Condition')}</div>
+                        <div class="list-item-sub">SNOMED: ${escapeHtml(c.code?.coding?.[0]?.code || 'N/A')}</div>
                     </div>
                     <div style="display:flex; align-items:center; gap:0.5rem;">
                         <span class="badge-status badge-active">ACTIVE</span>
-                        <button class="btn btn-sm btn-ghost text-danger" title="Delete Condition" onclick="App.deleteCondition('${c.id}', '${patientId}')">
+                        <button class="btn btn-sm btn-ghost text-danger" title="Delete Condition" onclick="App.deleteCondition('${encodeURIComponent(c.id)}', '${safePatientId}')">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -487,12 +503,12 @@ const App = {
             medContainer.innerHTML = medications.map(m => `
                 <div class="list-item">
                     <div>
-                        <div class="list-item-title">${m.medicationCodeableConcept?.coding?.[0]?.display || 'Medication'}</div>
-                        <div class="list-item-sub">RxNorm: ${m.medicationCodeableConcept?.coding?.[0]?.code || 'N/A'}</div>
+                        <div class="list-item-title">${escapeHtml(m.medicationCodeableConcept?.coding?.[0]?.display || 'Medication')}</div>
+                        <div class="list-item-sub">RxNorm: ${escapeHtml(m.medicationCodeableConcept?.coding?.[0]?.code || 'N/A')}</div>
                     </div>
                     <div style="display:flex; align-items:center; gap:0.5rem;">
-                        <span class="badge-status badge-active">${(m.status || 'ACTIVE').toUpperCase()}</span>
-                        <button class="btn btn-sm btn-ghost text-danger" title="Delete Prescription" onclick="App.deleteMedication('${m.id}', '${patientId}')">
+                        <span class="badge-status badge-active">${escapeHtml((m.status || 'ACTIVE').toUpperCase())}</span>
+                        <button class="btn btn-sm btn-ghost text-danger" title="Delete Prescription" onclick="App.deleteMedication('${encodeURIComponent(m.id)}', '${safePatientId}')">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -508,10 +524,10 @@ const App = {
             encContainer.innerHTML = encounters.map(e => `
                 <div class="timeline-item" style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <div class="list-item-title">${e.type?.[0]?.coding?.[0]?.display || 'Ambulatory Consultation'}</div>
-                        <div class="list-item-sub">Class: ${e.class?.display || e.class?.code || 'Outpatient'} | Status: ${e.status}</div>
+                        <div class="list-item-title">${escapeHtml(e.type?.[0]?.coding?.[0]?.display || 'Ambulatory Consultation')}</div>
+                        <div class="list-item-sub">Class: ${escapeHtml(e.class?.display || e.class?.code || 'Outpatient')} | Status: ${escapeHtml(e.status)}</div>
                     </div>
-                    <button class="btn btn-sm btn-ghost text-danger" title="Delete Encounter" onclick="App.deleteEncounter('${e.id}', '${patientId}')">
+                    <button class="btn btn-sm btn-ghost text-danger" title="Delete Encounter" onclick="App.deleteEncounter('${encodeURIComponent(e.id)}', '${safePatientId}')">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>

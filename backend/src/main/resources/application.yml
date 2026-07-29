@@ -27,3 +27,8 @@ logging:
     root: INFO
     com.fhirstorm: DEBUG
     ca.uhn.hapi.fhir: INFO
+
+# Allowed CORS origins — comma-separated. Override via CORS_ALLOWED_ORIGINS env var in production.
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost,http://localhost:80}
+
