@@ -93,9 +93,10 @@ body {
 }
 
 .brand-text h2 {
-    font-size: 1.25rem;
+    font-size: 1.55rem;
     font-weight: 800;
     letter-spacing: -0.5px;
+    line-height: 1;
     color: #ffffff;
 }
 
