@@ -218,7 +218,8 @@ body {
 
 .topbar-search {
     position: relative;
-    width: 380px;
+    flex: 1;
+    margin-right: 2rem;
 }
 
 .search-icon {
