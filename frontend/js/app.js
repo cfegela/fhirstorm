@@ -414,15 +414,20 @@ const App = {
                     </div>
                 </div>
             </div>
-            <div class="btn-group">
+        `;
+
+        // Render Actions Footer Beneath Resource Cards
+        const actionsFooter = document.getElementById('patient-detail-actions');
+        if (actionsFooter) {
+            actionsFooter.innerHTML = `
                 <button class="btn btn-secondary" onclick="App.runFhirInspectorFor('${p.id}')">
                     <i class="fa-solid fa-code"></i> Inspect Raw FHIR JSON
                 </button>
                 <button class="btn btn-danger" onclick="App.deletePatient('${p.id}', true)">
                     <i class="fa-solid fa-trash-can"></i> Delete Patient
                 </button>
-            </div>
-        `;
+            `;
+        }
 
         // Fetch parallel FHIR sub-resources
         const [observations, conditions, medications, encounters] = await Promise.all([

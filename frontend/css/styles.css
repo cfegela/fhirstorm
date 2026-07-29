@@ -601,6 +601,16 @@ body {
     color: #38bdf8;
 }
 
+.patient-detail-actions-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
 /* Clinical Grid */
 .clinical-dashboard-grid {
     display: grid;
