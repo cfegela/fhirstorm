@@ -106,10 +106,7 @@ public class ConditionResourceProvider implements IResourceProvider {
                 .orElse(new FhirResourceEntity());
         entity.setResourceType("Condition");
         entity.setResourceId(idPart);
-        // Assuming there is a subject or patient ref we might need to preserve, but for simplicity:
-        if (theResource instanceof org.hl7.fhir.r4.model.Patient) {
-             entity.setPatientId(idPart);
-        }
+
         entity.setJsonContent(jsonContent);
         repository.save(entity);
         MethodOutcome outcome = new MethodOutcome();

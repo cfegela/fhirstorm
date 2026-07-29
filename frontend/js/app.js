@@ -48,8 +48,38 @@ const App = {
             });
         }
 
-        // Modals
+        // Add buttons on Patient Detail view
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.add-obs-for-patient-btn')) {
+                this.openModalForPatient('modal-new-obs', 'obs-patient-select');
+            } else if (e.target.closest('.add-cond-for-patient-btn')) {
+                this.openModalForPatient('modal-new-condition', 'cond-patient-select');
+            } else if (e.target.closest('.add-med-for-patient-btn')) {
+                this.openModalForPatient('modal-new-medication', 'med-patient-select');
+            } else if (e.target.closest('.add-enc-for-patient-btn')) {
+                this.openModalForPatient('modal-new-encounter', 'enc-patient-select');
+            }
+        });
+
+        // Modals setup
         this.setupModals();
+
+        // View Action Buttons
+        const newMedViewBtn = document.getElementById('btn-new-med-view');
+        if (newMedViewBtn) {
+            newMedViewBtn.addEventListener('click', () => {
+                this.populatePatientDropdown('med-patient-select');
+                document.getElementById('modal-new-medication').classList.add('show');
+            });
+        }
+
+        const newEncViewBtn = document.getElementById('btn-new-enc-view');
+        if (newEncViewBtn) {
+            newEncViewBtn.addEventListener('click', () => {
+                this.populatePatientDropdown('enc-patient-select');
+                document.getElementById('modal-new-encounter').classList.add('show');
+            });
+        }
 
         // FHIR Inspector Execute
         const fetchJsonBtn = document.getElementById('btn-fetch-json');
@@ -72,6 +102,7 @@ const App = {
             targetView.style.display = 'block';
         }
 
+        if (tabName === 'patients') this.loadPatients();
         if (tabName === 'clinical') this.loadClinicalView();
         if (tabName === 'medications') this.loadMedicationsView();
         if (tabName === 'encounters') this.loadEncountersView();
@@ -151,7 +182,7 @@ const App = {
         const modalNewObs = document.getElementById('modal-new-obs');
         if (newObsBtn && modalNewObs) {
             newObsBtn.addEventListener('click', () => {
-                this.populateObsPatientDropdown();
+                this.populatePatientDropdown('obs-patient-select');
                 modalNewObs.classList.add('show');
             });
         }
@@ -169,12 +200,100 @@ const App = {
                     modalNewObs.classList.remove('show');
                     if (this.selectedPatient && this.selectedPatient.id === patientId) {
                         this.loadPatientDetails(patientId);
+                    } else {
+                        this.loadClinicalView();
                     }
                 } catch (err) {
                     alert('Failed to record observation: ' + err.message);
                 }
             });
         }
+
+        // New Condition Modal
+        const modalNewCondition = document.getElementById('modal-new-condition');
+        const formNewCondition = document.getElementById('form-new-condition');
+        if (formNewCondition) {
+            formNewCondition.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const patientId = document.getElementById('cond-patient-select').value;
+                const condType = document.getElementById('cond-type-select').value.split('|');
+
+                try {
+                    await API.createCondition(patientId, condType[0], condType[1]);
+                    modalNewCondition.classList.remove('show');
+                    if (this.selectedPatient && this.selectedPatient.id === patientId) {
+                        this.loadPatientDetails(patientId);
+                    }
+                } catch (err) {
+                    alert('Failed to record condition: ' + err.message);
+                }
+            });
+        }
+
+        // New Medication Modal
+        const modalNewMedication = document.getElementById('modal-new-medication');
+        const formNewMedication = document.getElementById('form-new-medication');
+        if (formNewMedication) {
+            formNewMedication.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const patientId = document.getElementById('med-patient-select').value;
+                const medType = document.getElementById('med-type-select').value.split('|');
+
+                try {
+                    await API.createMedicationRequest(patientId, medType[0], medType[1]);
+                    modalNewMedication.classList.remove('show');
+                    if (this.selectedPatient && this.selectedPatient.id === patientId) {
+                        this.loadPatientDetails(patientId);
+                    } else {
+                        this.loadMedicationsView();
+                    }
+                } catch (err) {
+                    alert('Failed to create medication request: ' + err.message);
+                }
+            });
+        }
+
+        // New Encounter Modal
+        const modalNewEncounter = document.getElementById('modal-new-encounter');
+        const formNewEncounter = document.getElementById('form-new-encounter');
+        if (formNewEncounter) {
+            formNewEncounter.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const patientId = document.getElementById('enc-patient-select').value;
+                const encClass = document.getElementById('enc-class-select').value.split('|');
+                const encType = document.getElementById('enc-type-select').value.split('|');
+
+                try {
+                    await API.createEncounter(patientId, encClass[0], encClass[1], encType[0], encType[1]);
+                    modalNewEncounter.classList.remove('show');
+                    if (this.selectedPatient && this.selectedPatient.id === patientId) {
+                        this.loadPatientDetails(patientId);
+                    } else {
+                        this.loadEncountersView();
+                    }
+                } catch (err) {
+                    alert('Failed to create encounter: ' + err.message);
+                }
+            });
+        }
+    },
+
+    openModalForPatient(modalId, selectId) {
+        this.populatePatientDropdown(selectId);
+        if (this.selectedPatient) {
+            document.getElementById(selectId).value = this.selectedPatient.id;
+        }
+        document.getElementById(modalId).classList.add('show');
+    },
+
+    populatePatientDropdown(selectId) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        select.innerHTML = this.currentPatients.map(p => {
+            const family = p.name?.[0]?.family || '';
+            const given = p.name?.[0]?.given?.[0] || '';
+            return `<option value="${p.id}">${given} ${family} (${p.id})</option>`;
+        }).join('');
     },
 
     async loadPatients() {
@@ -206,21 +325,28 @@ const App = {
             const email = p.telecom?.find(t => t.system === 'email')?.value || 'Not provided';
 
             return `
-                <div class="patient-card" onclick="App.openPatientDetail('${p.id}')">
+                <div class="patient-card">
                     <div class="card-top">
                         <span class="mrn-badge"><i class="fa-solid fa-id-card"></i> ${mrn}</span>
-                        <span class="badge-r4">${gender.toUpperCase()}</span>
+                        <div>
+                            <span class="badge-r4">${gender.toUpperCase()}</span>
+                            <button class="btn btn-sm btn-ghost text-danger" title="Delete Patient" onclick="event.stopPropagation(); App.deletePatient('${p.id}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
-                    <h3 class="patient-name-h3">${fullName}</h3>
-                    <div class="patient-meta-list">
-                        <div class="patient-meta-item">
-                            <i class="fa-solid fa-calendar"></i> DOB: ${dob}
-                        </div>
-                        <div class="patient-meta-item">
-                            <i class="fa-solid fa-phone"></i> ${phone}
-                        </div>
-                        <div class="patient-meta-item">
-                            <i class="fa-solid fa-envelope"></i> ${email}
+                    <div onclick="App.openPatientDetail('${p.id}')" style="cursor:pointer;">
+                        <h3 class="patient-name-h3">${fullName}</h3>
+                        <div class="patient-meta-list">
+                            <div class="patient-meta-item">
+                                <i class="fa-solid fa-calendar"></i> DOB: ${dob}
+                            </div>
+                            <div class="patient-meta-item">
+                                <i class="fa-solid fa-phone"></i> ${phone}
+                            </div>
+                            <div class="patient-meta-item">
+                                <i class="fa-solid fa-envelope"></i> ${email}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -279,9 +405,14 @@ const App = {
                     </div>
                 </div>
             </div>
-            <button class="btn btn-secondary" onclick="App.runFhirInspectorFor('${p.id}')">
-                <i class="fa-solid fa-code"></i> Inspect Raw FHIR JSON
-            </button>
+            <div>
+                <button class="btn btn-secondary" onclick="App.runFhirInspectorFor('${p.id}')">
+                    <i class="fa-solid fa-code"></i> Inspect Raw FHIR JSON
+                </button>
+                <button class="btn btn-danger" onclick="App.deletePatient('${p.id}', true)">
+                    <i class="fa-solid fa-trash"></i> Delete Patient
+                </button>
+            </div>
         `;
 
         // Fetch parallel FHIR sub-resources
@@ -310,7 +441,12 @@ const App = {
                 }
                 return `
                     <div class="vital-card">
-                        <div class="vital-title">${title}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div class="vital-title">${title}</div>
+                            <button class="btn btn-sm btn-ghost text-danger" title="Delete Observation" onclick="App.deleteObservation('${o.id}', '${patientId}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
                         <div class="vital-value">${valStr}</div>
                         <div class="vital-unit">${unitStr}</div>
                     </div>
@@ -329,7 +465,12 @@ const App = {
                         <div class="list-item-title">${c.code?.coding?.[0]?.display || 'Condition'}</div>
                         <div class="list-item-sub">SNOMED: ${c.code?.coding?.[0]?.code || 'N/A'}</div>
                     </div>
-                    <span class="badge-status badge-active">ACTIVE</span>
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <span class="badge-status badge-active">ACTIVE</span>
+                        <button class="btn btn-sm btn-ghost text-danger" title="Delete Condition" onclick="App.deleteCondition('${c.id}', '${patientId}')">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -345,7 +486,12 @@ const App = {
                         <div class="list-item-title">${m.medicationCodeableConcept?.coding?.[0]?.display || 'Medication'}</div>
                         <div class="list-item-sub">RxNorm: ${m.medicationCodeableConcept?.coding?.[0]?.code || 'N/A'}</div>
                     </div>
-                    <span class="badge-status badge-active">${(m.status || 'ACTIVE').toUpperCase()}</span>
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <span class="badge-status badge-active">${(m.status || 'ACTIVE').toUpperCase()}</span>
+                        <button class="btn btn-sm btn-ghost text-danger" title="Delete Prescription" onclick="App.deleteMedication('${m.id}', '${patientId}')">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -356,11 +502,84 @@ const App = {
             encContainer.innerHTML = `<p class="text-sm">No encounters recorded.</p>`;
         } else {
             encContainer.innerHTML = encounters.map(e => `
-                <div class="timeline-item">
-                    <div class="list-item-title">${e.type?.[0]?.coding?.[0]?.display || 'Ambulatory Consultation'}</div>
-                    <div class="list-item-sub">Class: ${e.class?.display || e.class?.code || 'Outpatient'} | Status: ${e.status}</div>
+                <div class="timeline-item" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div class="list-item-title">${e.type?.[0]?.coding?.[0]?.display || 'Ambulatory Consultation'}</div>
+                        <div class="list-item-sub">Class: ${e.class?.display || e.class?.code || 'Outpatient'} | Status: ${e.status}</div>
+                    </div>
+                    <button class="btn btn-sm btn-ghost text-danger" title="Delete Encounter" onclick="App.deleteEncounter('${e.id}', '${patientId}')">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </div>
             `).join('');
+        }
+    },
+
+    // Delete Operations
+    async deletePatient(patientId, redirectToList = false) {
+        if (!confirm('Are you sure you want to delete this Patient?')) return;
+        try {
+            await API.deletePatient(patientId);
+            if (redirectToList) {
+                this.switchTab('patients');
+            }
+            await this.loadPatients();
+        } catch (err) {
+            alert('Failed to delete patient: ' + err.message);
+        }
+    },
+
+    async deleteObservation(obsId, patientId = null) {
+        if (!confirm('Are you sure you want to delete this Observation?')) return;
+        try {
+            await API.deleteObservation(obsId);
+            if (patientId) {
+                this.loadPatientDetails(patientId);
+            } else {
+                this.loadClinicalView();
+            }
+        } catch (err) {
+            alert('Failed to delete observation: ' + err.message);
+        }
+    },
+
+    async deleteCondition(condId, patientId = null) {
+        if (!confirm('Are you sure you want to delete this Condition?')) return;
+        try {
+            await API.deleteCondition(condId);
+            if (patientId) {
+                this.loadPatientDetails(patientId);
+            }
+        } catch (err) {
+            alert('Failed to delete condition: ' + err.message);
+        }
+    },
+
+    async deleteMedication(medId, patientId = null) {
+        if (!confirm('Are you sure you want to delete this Prescription?')) return;
+        try {
+            await API.deleteMedicationRequest(medId);
+            if (patientId) {
+                this.loadPatientDetails(patientId);
+            } else {
+                this.loadMedicationsView();
+            }
+        } catch (err) {
+            alert('Failed to delete medication request: ' + err.message);
+        }
+    },
+
+    async deleteEncounter(encId, patientId = null) {
+        if (!confirm('Are you sure you want to delete this Encounter?')) return;
+        try {
+            await API.deleteEncounter(encId);
+            if (patientId) {
+                this.loadPatientDetails(patientId);
+            } else {
+                this.loadEncountersView();
+            }
+        } catch (err) {
+            alert('Failed to delete encounter: ' + err.message);
         }
     },
 
@@ -384,6 +603,11 @@ const App = {
                     <td><strong>${o.valueQuantity ? o.valueQuantity.value + ' ' + (o.valueQuantity.unit || '') : 'See details'}</strong></td>
                     <td><span class="badge-status badge-active">${o.status}</span></td>
                     <td>${o.effectiveDateTime || 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-ghost text-danger" title="Delete" onclick="App.deleteObservation('${o.id}')">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
                 </tr>
             `).join('');
         } catch (err) {
@@ -401,6 +625,11 @@ const App = {
                 <td>${m.medicationCodeableConcept?.coding?.[0]?.display || 'Medication'}</td>
                 <td>${m.intent || 'order'}</td>
                 <td><span class="badge-status badge-active">${m.status}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-ghost text-danger" title="Delete" onclick="App.deleteMedication('${m.id}')">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
             </tr>
         `).join('');
     },
@@ -415,6 +644,11 @@ const App = {
                 <td>${e.class?.display || e.class?.code || 'Ambulatory'}</td>
                 <td>${e.type?.[0]?.coding?.[0]?.display || 'Consultation'}</td>
                 <td><span class="badge-status badge-active">${e.status}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-ghost text-danger" title="Delete" onclick="App.deleteEncounter('${e.id}')">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
             </tr>
         `).join('');
     },
@@ -435,15 +669,6 @@ const App = {
         } catch (err) {
             console.error(err);
         }
-    },
-
-    populateObsPatientDropdown() {
-        const select = document.getElementById('obs-patient-select');
-        select.innerHTML = this.currentPatients.map(p => {
-            const family = p.name?.[0]?.family || '';
-            const given = p.name?.[0]?.given?.[0] || '';
-            return `<option value="${p.id}">${given} ${family} (${p.id})</option>`;
-        }).join('');
     },
 
     async runFhirInspector() {

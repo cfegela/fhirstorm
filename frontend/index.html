@@ -147,6 +147,7 @@
                         <div class="card card-conditions">
                             <div class="card-header">
                                 <h3><i class="fa-solid fa-notes-medical"></i> Conditions & Diagnoses</h3>
+                                <button class="btn btn-sm btn-ghost add-cond-for-patient-btn"><i class="fa-solid fa-plus"></i> Add</button>
                             </div>
                             <div class="list-group" id="patient-conditions-container">
                                 <!-- Conditions injected -->
@@ -157,6 +158,7 @@
                         <div class="card card-medications">
                             <div class="card-header">
                                 <h3><i class="fa-solid fa-pills"></i> Active Prescriptions</h3>
+                                <button class="btn btn-sm btn-ghost add-med-for-patient-btn"><i class="fa-solid fa-plus"></i> Add</button>
                             </div>
                             <div class="list-group" id="patient-medications-container">
                                 <!-- Medications injected -->
@@ -167,6 +169,7 @@
                         <div class="card card-encounters">
                             <div class="card-header">
                                 <h3><i class="fa-solid fa-timeline"></i> Encounter History</h3>
+                                <button class="btn btn-sm btn-ghost add-enc-for-patient-btn"><i class="fa-solid fa-plus"></i> Add</button>
                             </div>
                             <div class="timeline" id="patient-encounters-container">
                                 <!-- Encounters injected -->
@@ -200,6 +203,7 @@
                                         <th>Value</th>
                                         <th>Status</th>
                                         <th>Effective Date</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -215,6 +219,9 @@
                             <h1>Medication Requests</h1>
                             <p class="subtitle">RxNorm standardized prescription management</p>
                         </div>
+                        <button id="btn-new-med-view" class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i> New Prescription
+                        </button>
                     </div>
                     <div class="card">
                         <div class="table-responsive">
@@ -226,6 +233,7 @@
                                         <th>Medication (RxNorm)</th>
                                         <th>Intent</th>
                                         <th>Status</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -241,6 +249,9 @@
                             <h1>Encounters Log</h1>
                             <p class="subtitle">Ambulatory and clinical patient visits</p>
                         </div>
+                        <button id="btn-new-enc-view" class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i> New Encounter
+                        </button>
                     </div>
                     <div class="card">
                         <div class="table-responsive">
@@ -252,6 +263,7 @@
                                         <th>Class</th>
                                         <th>Type</th>
                                         <th>Status</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -416,6 +428,103 @@
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary w-full">Save Observation</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Condition Modal -->
+    <div class="modal" id="modal-new-condition">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-notes-medical"></i> Add Condition / Diagnosis</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-new-condition" class="form-grid">
+                    <div class="form-group">
+                        <label>Target Patient</label>
+                        <select id="cond-patient-select" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Condition (SNOMED)</label>
+                        <select id="cond-type-select" required>
+                            <option value="73211009|Diabetes mellitus">Diabetes mellitus (73211009)</option>
+                            <option value="38341003|Hypertension">Hypertension (38341003)</option>
+                            <option value="195662009|Acute bronchitis">Acute bronchitis (195662009)</option>
+                            <option value="233604007|Pneumonia">Pneumonia (233604007)</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary w-full">Save Condition</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Medication Modal -->
+    <div class="modal" id="modal-new-medication">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-pills"></i> Add Prescription (MedicationRequest)</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-new-medication" class="form-grid">
+                    <div class="form-group">
+                        <label>Target Patient</label>
+                        <select id="med-patient-select" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Medication (RxNorm)</label>
+                        <select id="med-type-select" required>
+                            <option value="197361|Amlodipine 5 MG Oral Tablet">Amlodipine 5 MG Oral Tablet</option>
+                            <option value="860975|Metformin hydrochloride 500 MG Oral Tablet">Metformin 500 MG Tablet</option>
+                            <option value="313782|Lisinopril 10 MG Oral Tablet">Lisinopril 10 MG Tablet</option>
+                            <option value="197381|Amoxicillin 500 MG Oral Capsule">Amoxicillin 500 MG Capsule</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary w-full">Save Prescription</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Encounter Modal -->
+    <div class="modal" id="modal-new-encounter">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-calendar-check"></i> Record Encounter</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-new-encounter" class="form-grid">
+                    <div class="form-group">
+                        <label>Target Patient</label>
+                        <select id="enc-patient-select" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Encounter Class</label>
+                        <select id="enc-class-select" required>
+                            <option value="AMB|Ambulatory">Ambulatory (Outpatient)</option>
+                            <option value="IMP|Inpatient Encounter">Inpatient Encounter</option>
+                            <option value="EMER|Emergency">Emergency</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Encounter Type</label>
+                        <select id="enc-type-select" required>
+                            <option value="11429006|Consultation">General Consultation</option>
+                            <option value="270427003|Patient check-up">Routine Check-up</option>
+                            <option value="185349003|Follow-up visit">Follow-up Visit</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary w-full">Save Encounter</button>
                     </div>
                 </form>
             </div>

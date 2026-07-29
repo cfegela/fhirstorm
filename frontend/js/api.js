@@ -19,13 +19,18 @@ const API = {
             throw new Error(`FHIR API Error: ${response.status} ${response.statusText}`);
         }
 
-        return await response.json();
+        if (response.status === 204 || response.headers.get('content-length') === '0') {
+            return { success: true };
+        }
+
+        const text = await response.text();
+        return text ? JSON.parse(text) : { success: true };
     },
 
+    // --- PATIENTS ---
     async getPatients(nameQuery = '') {
         const query = nameQuery ? `?name=${encodeURIComponent(nameQuery)}` : '';
         const data = await this.fetchFHIR(`/Patient${query}`);
-        // Handle Bundle or List return
         if (data.resourceType === 'Bundle' && data.entry) {
             return data.entry.map(e => e.resource);
         }
@@ -63,6 +68,13 @@ const API = {
         });
     },
 
+    async deletePatient(id) {
+        return await this.fetchFHIR(`/Patient/${id}`, {
+            method: 'DELETE'
+        });
+    },
+
+    // --- OBSERVATIONS ---
     async getObservations(patientId = null) {
         const query = patientId ? `?patient=${patientId}` : '';
         const data = await this.fetchFHIR(`/Observation${query}`);
@@ -98,22 +110,142 @@ const API = {
         });
     },
 
+    async deleteObservation(id) {
+        return await this.fetchFHIR(`/Observation/${id}`, {
+            method: 'DELETE'
+        });
+    },
+
+    // --- CONDITIONS ---
     async getConditions(patientId = null) {
         const query = patientId ? `?patient=${patientId}` : '';
         const data = await this.fetchFHIR(`/Condition${query}`);
         return Array.isArray(data) ? data : [];
     },
 
+    async createCondition(patientId, code, display) {
+        const condResource = {
+            resourceType: "Condition",
+            clinicalStatus: {
+                coding: [{
+                    system: "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                    code: "active",
+                    display: "Active"
+                }]
+            },
+            verificationStatus: {
+                coding: [{
+                    system: "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                    code: "confirmed",
+                    display: "Confirmed"
+                }]
+            },
+            code: {
+                coding: [{
+                    system: "http://snomed.info/sct",
+                    code: code,
+                    display: display
+                }]
+            },
+            subject: {
+                reference: `Patient/${patientId}`
+            },
+            recordedDate: new Date().toISOString().split('T')[0]
+        };
+
+        return await this.fetchFHIR('/Condition', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(condResource)
+        });
+    },
+
+    async deleteCondition(id) {
+        return await this.fetchFHIR(`/Condition/${id}`, {
+            method: 'DELETE'
+        });
+    },
+
+    // --- MEDICATIONS ---
     async getMedicationRequests(patientId = null) {
         const query = patientId ? `?patient=${patientId}` : '';
         const data = await this.fetchFHIR(`/MedicationRequest${query}`);
         return Array.isArray(data) ? data : [];
     },
 
+    async createMedicationRequest(patientId, code, display) {
+        const medResource = {
+            resourceType: "MedicationRequest",
+            status: "active",
+            intent: "order",
+            medicationCodeableConcept: {
+                coding: [{
+                    system: "http://www.nlm.nih.gov/research/umls/rxnorm",
+                    code: code,
+                    display: display
+                }]
+            },
+            subject: {
+                reference: `Patient/${patientId}`
+            },
+            authoredOn: new Date().toISOString()
+        };
+
+        return await this.fetchFHIR('/MedicationRequest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(medResource)
+        });
+    },
+
+    async deleteMedicationRequest(id) {
+        return await this.fetchFHIR(`/MedicationRequest/${id}`, {
+            method: 'DELETE'
+        });
+    },
+
+    // --- ENCOUNTERS ---
     async getEncounters(patientId = null) {
         const query = patientId ? `?patient=${patientId}` : '';
         const data = await this.fetchFHIR(`/Encounter${query}`);
         return Array.isArray(data) ? data : [];
+    },
+
+    async createEncounter(patientId, classCode, classDisplay, typeCode, typeDisplay) {
+        const encResource = {
+            resourceType: "Encounter",
+            status: "finished",
+            class: {
+                system: "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                code: classCode,
+                display: classDisplay
+            },
+            type: [{
+                coding: [{
+                    system: "http://snomed.info/sct",
+                    code: typeCode,
+                    display: typeDisplay
+                }]
+            }],
+            subject: {
+                reference: `Patient/${patientId}`
+            },
+            period: {
+                start: new Date().toISOString()
+            }
+        };
+
+        return await this.fetchFHIR('/Encounter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(encResource)
+        });
+    },
+
+    async deleteEncounter(id) {
+        return await this.fetchFHIR(`/Encounter/${id}`, {
+            method: 'DELETE'
+        });
     },
 
     async getCapabilityStatement() {
