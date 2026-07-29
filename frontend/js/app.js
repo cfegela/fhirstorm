@@ -348,11 +348,8 @@ const App = {
                         </div>
                     </div>
                     <div class="patient-card-footer">
-                        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); App.openPatientDetail('${safeId}')">
+                        <button class="btn btn-sm btn-outline" style="width: 100%;" onclick="event.stopPropagation(); App.openPatientDetail('${safeId}')">
                             <i class="fa-solid fa-folder-open"></i> Open Chart
-                        </button>
-                        <button class="btn btn-sm btn-danger" title="Delete Patient" onclick="event.stopPropagation(); App.deletePatient('${safeId}')">
-                            <i class="fa-solid fa-trash-can"></i> Delete
                         </button>
                     </div>
                 </div>
