@@ -326,13 +326,12 @@ const App = {
 
             return `
                 <div class="patient-card" onclick="App.openPatientDetail('${p.id}')">
-                    <div class="card-top">
-                        <span class="mrn-badge"><i class="fa-solid fa-id-card"></i> ${mrn}</span>
-                        <span class="badge-r4">${gender.toUpperCase()}</span>
-                    </div>
                     <div class="card-body-content">
                         <h3 class="patient-name-h3">${fullName}</h3>
                         <div class="patient-meta-list">
+                            <div class="patient-meta-item">
+                                <i class="fa-solid fa-venus-mars"></i> Sex: ${gender.charAt(0).toUpperCase() + gender.slice(1)}
+                            </div>
                             <div class="patient-meta-item">
                                 <i class="fa-solid fa-calendar"></i> DOB: ${dob}
                             </div>
