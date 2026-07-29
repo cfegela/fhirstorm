@@ -95,4 +95,32 @@ public class EncounterResourceProvider implements IResourceProvider {
         outcome.setResource(theEncounter);
         return outcome;
     }
+
+    @Update
+    public MethodOutcome updateEncounter(@IdParam IdType theId, @ResourceParam Encounter theResource) {
+        String idPart = theId.getIdPart();
+        theResource.setId(idPart);
+        IParser parser = fhirContext.newJsonParser();
+        String jsonContent = parser.encodeResourceToString(theResource);
+        FhirResourceEntity entity = repository.findByResourceTypeAndResourceId("Encounter", idPart)
+                .orElse(new FhirResourceEntity());
+        entity.setResourceType("Encounter");
+        entity.setResourceId(idPart);
+        // Assuming there is a subject or patient ref we might need to preserve, but for simplicity:
+        if (theResource instanceof org.hl7.fhir.r4.model.Patient) {
+             entity.setPatientId(idPart);
+        }
+        entity.setJsonContent(jsonContent);
+        repository.save(entity);
+        MethodOutcome outcome = new MethodOutcome();
+        outcome.setId(new IdType("Encounter", idPart));
+        outcome.setResource(theResource);
+        return outcome;
+    }
+
+    @Delete
+    public void deleteEncounter(@IdParam IdType theId) {
+        repository.findByResourceTypeAndResourceId("Encounter", theId.getIdPart())
+                .ifPresent(repository::delete);
+    }
 }

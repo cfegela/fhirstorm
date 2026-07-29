@@ -95,4 +95,32 @@ public class MedicationRequestResourceProvider implements IResourceProvider {
         outcome.setResource(theMedicationRequest);
         return outcome;
     }
+
+    @Update
+    public MethodOutcome updateMedicationRequest(@IdParam IdType theId, @ResourceParam MedicationRequest theResource) {
+        String idPart = theId.getIdPart();
+        theResource.setId(idPart);
+        IParser parser = fhirContext.newJsonParser();
+        String jsonContent = parser.encodeResourceToString(theResource);
+        FhirResourceEntity entity = repository.findByResourceTypeAndResourceId("MedicationRequest", idPart)
+                .orElse(new FhirResourceEntity());
+        entity.setResourceType("MedicationRequest");
+        entity.setResourceId(idPart);
+        // Assuming there is a subject or patient ref we might need to preserve, but for simplicity:
+        if (theResource instanceof org.hl7.fhir.r4.model.Patient) {
+             entity.setPatientId(idPart);
+        }
+        entity.setJsonContent(jsonContent);
+        repository.save(entity);
+        MethodOutcome outcome = new MethodOutcome();
+        outcome.setId(new IdType("MedicationRequest", idPart));
+        outcome.setResource(theResource);
+        return outcome;
+    }
+
+    @Delete
+    public void deleteMedicationRequest(@IdParam IdType theId) {
+        repository.findByResourceTypeAndResourceId("MedicationRequest", theId.getIdPart())
+                .ifPresent(repository::delete);
+    }
 }

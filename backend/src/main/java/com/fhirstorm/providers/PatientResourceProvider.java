@@ -112,4 +112,10 @@ public class PatientResourceProvider implements IResourceProvider {
         outcome.setResource(thePatient);
         return outcome;
     }
+
+    @Delete
+    public void deletePatient(@IdParam IdType theId) {
+        repository.findByResourceTypeAndResourceId("Patient", theId.getIdPart())
+                .ifPresent(repository::delete);
+    }
 }

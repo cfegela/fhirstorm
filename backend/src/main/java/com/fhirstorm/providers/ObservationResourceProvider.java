@@ -95,4 +95,32 @@ public class ObservationResourceProvider implements IResourceProvider {
         outcome.setResource(theObservation);
         return outcome;
     }
+
+    @Update
+    public MethodOutcome updateObservation(@IdParam IdType theId, @ResourceParam Observation theResource) {
+        String idPart = theId.getIdPart();
+        theResource.setId(idPart);
+        IParser parser = fhirContext.newJsonParser();
+        String jsonContent = parser.encodeResourceToString(theResource);
+        FhirResourceEntity entity = repository.findByResourceTypeAndResourceId("Observation", idPart)
+                .orElse(new FhirResourceEntity());
+        entity.setResourceType("Observation");
+        entity.setResourceId(idPart);
+        // Assuming there is a subject or patient ref we might need to preserve, but for simplicity:
+        if (theResource instanceof org.hl7.fhir.r4.model.Patient) {
+             entity.setPatientId(idPart);
+        }
+        entity.setJsonContent(jsonContent);
+        repository.save(entity);
+        MethodOutcome outcome = new MethodOutcome();
+        outcome.setId(new IdType("Observation", idPart));
+        outcome.setResource(theResource);
+        return outcome;
+    }
+
+    @Delete
+    public void deleteObservation(@IdParam IdType theId) {
+        repository.findByResourceTypeAndResourceId("Observation", theId.getIdPart())
+                .ifPresent(repository::delete);
+    }
 }

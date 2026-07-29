@@ -44,8 +44,7 @@ public class SecurityConfig {
             .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/fhir/**").permitAll()
-                .antMatchers("/actuator/**").permitAll()
+                .antMatchers("/actuator/health").permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

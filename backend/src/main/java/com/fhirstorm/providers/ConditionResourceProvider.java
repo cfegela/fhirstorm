@@ -95,4 +95,32 @@ public class ConditionResourceProvider implements IResourceProvider {
         outcome.setResource(theCondition);
         return outcome;
     }
+
+    @Update
+    public MethodOutcome updateCondition(@IdParam IdType theId, @ResourceParam Condition theResource) {
+        String idPart = theId.getIdPart();
+        theResource.setId(idPart);
+        IParser parser = fhirContext.newJsonParser();
+        String jsonContent = parser.encodeResourceToString(theResource);
+        FhirResourceEntity entity = repository.findByResourceTypeAndResourceId("Condition", idPart)
+                .orElse(new FhirResourceEntity());
+        entity.setResourceType("Condition");
+        entity.setResourceId(idPart);
+        // Assuming there is a subject or patient ref we might need to preserve, but for simplicity:
+        if (theResource instanceof org.hl7.fhir.r4.model.Patient) {
+             entity.setPatientId(idPart);
+        }
+        entity.setJsonContent(jsonContent);
+        repository.save(entity);
+        MethodOutcome outcome = new MethodOutcome();
+        outcome.setId(new IdType("Condition", idPart));
+        outcome.setResource(theResource);
+        return outcome;
+    }
+
+    @Delete
+    public void deleteCondition(@IdParam IdType theId) {
+        repository.findByResourceTypeAndResourceId("Condition", theId.getIdPart())
+                .ifPresent(repository::delete);
+    }
 }
