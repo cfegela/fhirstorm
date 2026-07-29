@@ -27,14 +27,19 @@ const API = {
         return text ? JSON.parse(text) : { success: true };
     },
 
-    // --- PATIENTS ---
-    async getPatients(nameQuery = '') {
-        const query = nameQuery ? `?name=${encodeURIComponent(nameQuery)}` : '';
-        const data = await this.fetchFHIR(`/Patient${query}`);
+    parseBundleOrList(data) {
+        if (!data) return [];
         if (data.resourceType === 'Bundle' && data.entry) {
             return data.entry.map(e => e.resource);
         }
         return Array.isArray(data) ? data : [];
+    },
+
+    // --- PATIENTS ---
+    async getPatients(nameQuery = '') {
+        const query = nameQuery ? `?name=${encodeURIComponent(nameQuery)}` : '';
+        const data = await this.fetchFHIR(`/Patient${query}`);
+        return this.parseBundleOrList(data);
     },
 
     async getPatientById(id) {
@@ -78,7 +83,7 @@ const API = {
     async getObservations(patientId = null) {
         const query = patientId ? `?patient=${patientId}` : '';
         const data = await this.fetchFHIR(`/Observation${query}`);
-        return Array.isArray(data) ? data : [];
+        return this.parseBundleOrList(data);
     },
 
     async createObservation(patientId, code, display, unit, value) {
@@ -120,7 +125,7 @@ const API = {
     async getConditions(patientId = null) {
         const query = patientId ? `?patient=${patientId}` : '';
         const data = await this.fetchFHIR(`/Condition${query}`);
-        return Array.isArray(data) ? data : [];
+        return this.parseBundleOrList(data);
     },
 
     async createCondition(patientId, code, display) {
@@ -170,7 +175,7 @@ const API = {
     async getMedicationRequests(patientId = null) {
         const query = patientId ? `?patient=${patientId}` : '';
         const data = await this.fetchFHIR(`/MedicationRequest${query}`);
-        return Array.isArray(data) ? data : [];
+        return this.parseBundleOrList(data);
     },
 
     async createMedicationRequest(patientId, code, display) {
@@ -208,7 +213,7 @@ const API = {
     async getEncounters(patientId = null) {
         const query = patientId ? `?patient=${patientId}` : '';
         const data = await this.fetchFHIR(`/Encounter${query}`);
-        return Array.isArray(data) ? data : [];
+        return this.parseBundleOrList(data);
     },
 
     async createEncounter(patientId, classCode, classDisplay, typeCode, typeDisplay) {
