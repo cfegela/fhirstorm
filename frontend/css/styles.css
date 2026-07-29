@@ -580,19 +580,24 @@ body {
     color: #ffffff;
 }
 
-.banner-badges {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.4rem;
+.banner-details-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    gap: 0.5rem 1.5rem;
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
 }
 
-.badge-info {
-    font-size: 0.75rem;
-    padding: 3px 10px;
-    border-radius: var(--radius-full);
-    background: rgba(255, 255, 255, 0.18);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+.banner-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.banner-detail-item i {
+    width: 18px;
+    color: #38bdf8;
 }
 
 /* Clinical Grid */

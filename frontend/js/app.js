@@ -392,6 +392,11 @@ const App = {
         const fullName = `${given} ${family}`.trim();
         const mrn = p.identifier?.[0]?.value || `MRN-${p.id}`;
 
+        const gender = p.gender ? p.gender.charAt(0).toUpperCase() + p.gender.slice(1) : 'N/A';
+        const dob = p.birthDate || 'N/A';
+        const phone = p.telecom?.find(t => t.system === 'phone')?.value || 'Not provided';
+        const email = p.telecom?.find(t => t.system === 'email')?.value || 'Not provided';
+
         // Render Banner
         const banner = document.getElementById('patient-banner');
         banner.innerHTML = `
@@ -399,11 +404,13 @@ const App = {
                 <div class="patient-avatar-large"><i class="fa-solid fa-user-injured"></i></div>
                 <div class="banner-details">
                     <h2>${fullName}</h2>
-                    <div class="banner-badges">
-                        <span class="badge-info">MRN: ${mrn}</span>
-                        <span class="badge-info">Gender: ${p.gender || 'N/A'}</span>
-                        <span class="badge-info">DOB: ${p.birthDate || 'N/A'}</span>
-                        <span class="badge-info">ID: ${p.id}</span>
+                    <div class="banner-details-list">
+                        <div class="banner-detail-item"><i class="fa-solid fa-id-card"></i> <strong>MRN:</strong> ${mrn}</div>
+                        <div class="banner-detail-item"><i class="fa-solid fa-venus-mars"></i> <strong>Sex:</strong> ${gender}</div>
+                        <div class="banner-detail-item"><i class="fa-solid fa-calendar"></i> <strong>DOB:</strong> ${dob}</div>
+                        <div class="banner-detail-item"><i class="fa-solid fa-phone"></i> <strong>Phone:</strong> ${phone}</div>
+                        <div class="banner-detail-item"><i class="fa-solid fa-envelope"></i> <strong>Email:</strong> ${email}</div>
+                        <div class="banner-detail-item"><i class="fa-solid fa-hashtag"></i> <strong>FHIR ID:</strong> ${p.id}</div>
                     </div>
                 </div>
             </div>
