@@ -12,7 +12,17 @@ const API = {
             headers
         };
 
-        const url = endpoint.startsWith('http') ? endpoint : `${this.BASE_URL}${endpoint}`;
+        let url;
+        if (endpoint.startsWith('http')) {
+            url = endpoint;
+        } else if (endpoint.startsWith('/fhir')) {
+            url = endpoint;
+        } else if (endpoint.startsWith('/')) {
+            url = `${this.BASE_URL}${endpoint}`;
+        } else {
+            url = `${this.BASE_URL}/${endpoint}`;
+        }
+
         const response = await fetch(url, config);
 
         if (!response.ok) {
