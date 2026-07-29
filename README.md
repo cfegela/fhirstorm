@@ -8,10 +8,10 @@ FHIRStorm is a full-stack, containerized Patient Medical Records Management Syst
 
 | Layer | Technology | Details |
 | :--- | :--- | :--- |
-| **Frontend** | Vanilla JavaScript (ES6+), HTML5, Vanilla CSS3 | Dark glassmorphism design system, responsive clinical dashboard, FHIR JSON inspector |
+| **Frontend** | Vanilla JavaScript (ES6+), HTML5, Vanilla CSS3 | Clean Light & Navy Blue clinical design system, responsive clinical dashboard, FHIR JSON inspector |
 | **Backend API** | Java 17, Spring Boot 2.7.18, HAPI FHIR R4 6.8.0 | Industry gold-standard reference implementation |
 | **Database** | PostgreSQL 15 | SQL-backed FHIR JSON storage & indexed search parameters |
-| **Auth** | OAuth 2.0 / JWT (JSON Web Tokens) | Signed token authentication with Role-Based Access Control (Admin, Practitioner, Patient) |
+| **Auth** | OAuth 2.0 / JWT (JSON Web Tokens) | Signed token authentication with Role-Based Access Control (Admin, Practitioner, Patient) protecting all `/fhir/**` endpoints |
 | **Orchestration** | Podman Compose / Docker Compose | Containerized multi-service execution (`arm64` & `amd64` compatible) |
 
 ---
@@ -46,6 +46,8 @@ docker logs fhirstorm-backend -f
 # Stop containers
 docker compose down
 ```
+
+> **Tip:** The `./frontend` directory is mounted live into the Nginx container (`:ro`), allowing frontend HTML, CSS, and JS edits to take effect immediately upon browser refresh (`F5` / `Cmd` + `R`).
 
 ---
 
@@ -82,18 +84,19 @@ curl -X POST http://localhost/api/auth/login \
 
 ## 🩺 Supported FHIR R4 Resources & Operations
 
-FHIRStorm provides RESTful endpoints adhering to HL7 FHIR R4:
+FHIRStorm provides full CRUD RESTful endpoints adhering to HL7 FHIR R4:
 
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
 | `/fhir/Patient` | `GET` | Query all patients or search by name (`?name=Doe`) |
 | `/fhir/Patient/{id}` | `GET` | Read patient resource by ID |
 | `/fhir/Patient` | `POST` | Create a new FHIR Patient resource |
-| `/fhir/Observation` | `GET` | Query vital sign observations (`?patient=patient-001`) |
-| `/fhir/Observation` | `POST` | Record a new vital sign Observation (Heart rate, Blood pressure, etc.) |
-| `/fhir/Condition` | `GET` | Query active diagnoses and SNOMED conditions |
-| `/fhir/MedicationRequest` | `GET` | Query RxNorm active prescriptions |
-| `/fhir/Encounter` | `GET` | Query clinical consultation encounters timeline |
+| `/fhir/Patient/{id}` | `PUT` | Update an existing FHIR Patient resource |
+| `/fhir/Patient/{id}` | `DELETE` | Delete a FHIR Patient resource |
+| `/fhir/Observation` | `GET`, `POST`, `PUT`, `DELETE` | Full CRUD operations for vital sign Observations |
+| `/fhir/Condition` | `GET`, `POST`, `PUT`, `DELETE` | Full CRUD operations for diagnoses & SNOMED conditions |
+| `/fhir/MedicationRequest` | `GET`, `POST`, `PUT`, `DELETE` | Full CRUD operations for RxNorm active prescriptions |
+| `/fhir/Encounter` | `GET`, `POST`, `PUT`, `DELETE` | Full CRUD operations for clinical encounters |
 | `/fhir/metadata` | `GET` | Fetch server `CapabilityStatement` |
 
 ---
@@ -113,7 +116,7 @@ fhirstorm/
 │   └── Dockerfile (Multi-stage build)
 ├── frontend/
 │   ├── index.html
-│   ├── css/styles.css (Glassmorphism design system)
+│   ├── css/styles.css (Clean Light & Navy Blue design system)
 │   ├── js/ (app.js, api.js, auth.js)
 │   ├── nginx.conf (Static server & API reverse proxy)
 │   └── Dockerfile
