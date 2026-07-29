@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: fhirstorm-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: fhirstorm
+      POSTGRES_USER: fhiruser
+      POSTGRES_PASSWORD: fhirpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fhiruser -d fhirstorm"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fhirstorm-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fhirstorm-backend
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fhirstorm
+      SPRING_DATASOURCE_USERNAME: fhiruser
+      SPRING_DATASOURCE_PASSWORD: fhirpass
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fhirstorm-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fhirstorm-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - fhirstorm-net
+
+networks:
+  fhirstorm-net:
+    driver: bridge
+
+volumes:
+  postgres_data:

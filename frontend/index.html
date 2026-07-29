@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FHIRStorm - Next-Gen Patient Medical Records Management</title>
+    <meta name="description" content="Modern SMART on FHIR compliant medical records management system backed by Java Spring Boot, HAPI FHIR, and PostgreSQL.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-bolt-lightning"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>FHIR<span>Storm</span></h2>
+                    <span class="badge-r4">FHIR R4</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#patients" class="nav-item active" data-tab="patients">
+                    <i class="fa-solid fa-user-injured"></i>
+                    <span>Patient Directory</span>
+                </a>
+                <a href="#clinical" class="nav-item" data-tab="clinical">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <span>Clinical Vitals</span>
+                </a>
+                <a href="#medications" class="nav-item" data-tab="medications">
+                    <i class="fa-solid fa-pills"></i>
+                    <span>Medications</span>
+                </a>
+                <a href="#encounters" class="nav-item" data-tab="encounters">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Encounters</span>
+                </a>
+                <a href="#fhir-inspector" class="nav-item" data-tab="inspector">
+                    <i class="fa-solid fa-code"></i>
+                    <span>FHIR R4 Inspector</span>
+                </a>
+                <a href="#capabilities" class="nav-item" data-tab="capabilities">
+                    <i class="fa-solid fa-server"></i>
+                    <span>API Capabilities</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <div class="status-indicator online"></div>
+                    <div class="status-info">
+                        <span class="status-title">HAPI FHIR API</span>
+                        <span class="status-sub">PostgreSQL Connected</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="topbar">
+                <div class="topbar-search">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="global-search" placeholder="Search patients by name, ID, or MRN...">
+                </div>
+
+                <div class="topbar-actions">
+                    <button id="btn-new-patient" class="btn btn-primary">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>New Patient</span>
+                    </button>
+                    <button id="btn-new-obs" class="btn btn-secondary">
+                        <i class="fa-solid fa-notes-medical"></i>
+                        <span>Record Vitals</span>
+                    </button>
+
+                    <div class="user-profile-menu">
+                        <div class="user-avatar" id="user-avatar-btn">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                        <div class="user-details">
+                            <span class="user-name" id="display-user-name">Dr. Alexander Fleming</span>
+                            <span class="user-role" id="display-user-role">PRACTITIONER</span>
+                        </div>
+                        <button id="btn-auth" class="btn-icon" title="Login / Change User">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic View Container -->
+            <div class="content-body" id="content-body">
+                <!-- Patient Directory View -->
+                <section id="view-patients" class="tab-view active">
+                    <div class="view-header">
+                        <div>
+                            <h1>Patient Directory</h1>
+                            <p class="subtitle">Standardized FHIR R4 Patient Resources stored in PostgreSQL</p>
+                        </div>
+                        <div class="filter-group">
+                            <button class="btn btn-outline filter-btn active" data-gender="all">All</button>
+                            <button class="btn btn-outline filter-btn" data-gender="female">Female</button>
+                            <button class="btn btn-outline filter-btn" data-gender="male">Male</button>
+                        </div>
+                    </div>
+
+                    <div class="patients-grid" id="patients-grid">
+                        <!-- Patient cards dynamically injected -->
+                    </div>
+                </section>
+
+                <!-- Patient Clinical Detail Modal/View -->
+                <section id="view-patient-detail" class="tab-view" style="display:none;">
+                    <button id="btn-back-to-patients" class="btn btn-ghost">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Patient Directory
+                    </button>
+
+                    <div class="patient-banner" id="patient-banner">
+                        <!-- Patient Header Card -->
+                    </div>
+
+                    <div class="clinical-dashboard-grid">
+                        <!-- Vitals Section -->
+                        <div class="card card-vitals">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-heart-pulse"></i> Vital Signs (Observations)</h3>
+                                <button class="btn btn-sm btn-ghost add-obs-for-patient-btn"><i class="fa-solid fa-plus"></i> Add</button>
+                            </div>
+                            <div class="vitals-grid" id="patient-vitals-container">
+                                <!-- Vitals cards injected -->
+                            </div>
+                        </div>
+
+                        <!-- Active Conditions -->
+                        <div class="card card-conditions">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-notes-medical"></i> Conditions & Diagnoses</h3>
+                            </div>
+                            <div class="list-group" id="patient-conditions-container">
+                                <!-- Conditions injected -->
+                            </div>
+                        </div>
+
+                        <!-- Active Medication Requests -->
+                        <div class="card card-medications">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-pills"></i> Active Prescriptions</h3>
+                            </div>
+                            <div class="list-group" id="patient-medications-container">
+                                <!-- Medications injected -->
+                            </div>
+                        </div>
+
+                        <!-- Encounters Timeline -->
+                        <div class="card card-encounters">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-timeline"></i> Encounter History</h3>
+                            </div>
+                            <div class="timeline" id="patient-encounters-container">
+                                <!-- Encounters injected -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Clinical Dashboard View -->
+                <section id="view-clinical" class="tab-view" style="display:none;">
+                    <div class="view-header">
+                        <div>
+                            <h1>Clinical Vitals Analytics</h1>
+                            <p class="subtitle">Real-time aggregate Observation analytics across FHIR subjects</p>
+                        </div>
+                    </div>
+                    <div class="stats-overview" id="stats-overview">
+                        <!-- Stats cards injected -->
+                    </div>
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-list-check"></i> Recent FHIR Observations</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table" id="observations-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Subject</th>
+                                        <th>Code (LOINC)</th>
+                                        <th>Value</th>
+                                        <th>Status</th>
+                                        <th>Effective Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Medications View -->
+                <section id="view-medications" class="tab-view" style="display:none;">
+                    <div class="view-header">
+                        <div>
+                            <h1>Medication Requests</h1>
+                            <p class="subtitle">RxNorm standardized prescription management</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="data-table" id="medications-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Patient</th>
+                                        <th>Medication (RxNorm)</th>
+                                        <th>Intent</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Encounters View -->
+                <section id="view-encounters" class="tab-view" style="display:none;">
+                    <div class="view-header">
+                        <div>
+                            <h1>Encounters Log</h1>
+                            <p class="subtitle">Ambulatory and clinical patient visits</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="data-table" id="encounters-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Patient</th>
+                                        <th>Class</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FHIR R4 Inspector View -->
+                <section id="view-inspector" class="tab-view" style="display:none;">
+                    <div class="view-header">
+                        <div>
+                            <h1>FHIR R4 Inspector</h1>
+                            <p class="subtitle">Test REST endpoints and examine raw FHIR R4 JSON resources</p>
+                        </div>
+                        <div class="inspector-controls">
+                            <select id="fhir-endpoint-select" class="form-select">
+                                <option value="/fhir/Patient">GET /fhir/Patient</option>
+                                <option value="/fhir/Observation">GET /fhir/Observation</option>
+                                <option value="/fhir/Condition">GET /fhir/Condition</option>
+                                <option value="/fhir/MedicationRequest">GET /fhir/MedicationRequest</option>
+                                <option value="/fhir/Encounter">GET /fhir/Encounter</option>
+                                <option value="/fhir/metadata">GET /fhir/metadata (CapabilityStatement)</option>
+                            </select>
+                            <button id="btn-fetch-json" class="btn btn-primary">
+                                <i class="fa-solid fa-play"></i> Execute REST Request
+                            </button>
+                        </div>
+                    </div>
+                    <div class="json-inspector-container">
+                        <pre id="json-display" class="json-box"><code>// Select an endpoint above and click Execute to view raw FHIR JSON payload...</code></pre>
+                    </div>
+                </section>
+
+                <!-- API Capabilities View -->
+                <section id="view-capabilities" class="tab-view" style="display:none;">
+                    <div class="view-header">
+                        <div>
+                            <h1>FHIR Server CapabilityStatement</h1>
+                            <p class="subtitle">Supported FHIR R4 Resources and interactions</p>
+                        </div>
+                    </div>
+                    <div class="card" id="capabilities-card">
+                        <div class="capabilities-grid" id="capabilities-grid">
+                            <!-- Injected -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Authentication Modal -->
+    <div class="modal" id="modal-auth">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-shield-halved"></i> SMART / OAuth2 JWT Login</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="text-sm">Select a role preset or enter credentials to obtain a signed JWT token:</p>
+                <div class="preset-buttons">
+                    <button class="btn btn-outline preset-user" data-user="doctor@fhirstorm.org" data-pass="doctor123">
+                        <i class="fa-solid fa-user-doctor"></i> Practitioner (Doctor)
+                    </button>
+                    <button class="btn btn-outline preset-user" data-user="admin@fhirstorm.org" data-pass="admin123">
+                        <i class="fa-solid fa-user-shield"></i> Administrator
+                    </button>
+                    <button class="btn btn-outline preset-user" data-user="patient@fhirstorm.org" data-pass="patient123">
+                        <i class="fa-solid fa-user"></i> Patient
+                    </button>
+                </div>
+                <form id="form-auth" class="form-grid">
+                    <div class="form-group">
+                        <label>Username / Email</label>
+                        <input type="text" id="auth-username" required value="doctor@fhirstorm.org">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="auth-password" required value="doctor123">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary w-full">Sign In & Receive Token</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Patient Modal -->
+    <div class="modal" id="modal-new-patient">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-plus"></i> Create FHIR R4 Patient</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-new-patient" class="form-grid">
+                    <div class="form-group">
+                        <label>Given (First) Name</label>
+                        <input type="text" id="patient-given" required placeholder="e.g. Robert">
+                    </div>
+                    <div class="form-group">
+                        <label>Family (Last) Name</label>
+                        <input type="text" id="patient-family" required placeholder="e.g. Miller">
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="patient-gender" required>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date of Birth</label>
+                        <input type="date" id="patient-dob" required value="1992-08-10">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="patient-phone" placeholder="555-0123">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="patient-email" placeholder="robert.miller@example.com">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary w-full">Submit to FHIR API (PostgreSQL)</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Observation Modal -->
+    <div class="modal" id="modal-new-obs">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-notes-medical"></i> Record Vital Sign (Observation)</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-new-obs" class="form-grid">
+                    <div class="form-group">
+                        <label>Target Patient</label>
+                        <select id="obs-patient-select" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Observation Type (LOINC)</label>
+                        <select id="obs-type-select" required>
+                            <option value="8867-4|Heart rate|beats/min">Heart Rate (8867-4)</option>
+                            <option value="8310-5|Body temperature|degC">Body Temperature (8310-5)</option>
+                            <option value="2708-6|Oxygen saturation|%">Oxygen Saturation (2708-6)</option>
+                            <option value="29463-7|Body weight|kg">Body Weight (29463-7)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Numeric Value</label>
+                        <input type="number" step="0.1" id="obs-value" required value="75">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary w-full">Save Observation</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
