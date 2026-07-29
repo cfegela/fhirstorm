@@ -56,9 +56,6 @@ docker compose down
 Once the stack is running, access the services:
 
 - **Frontend Dashboard:** [http://localhost](http://localhost)
-- **FHIR REST API Base:** [http://localhost/fhir/](http://localhost/fhir/)
-- **FHIR CapabilityStatement:** [http://localhost/fhir/metadata](http://localhost/fhir/metadata)
-- **JWT Authentication API:** [http://localhost/api/auth/login](http://localhost/api/auth/login)
 
 ---
 
