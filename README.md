@@ -44,8 +44,6 @@ The system automatically initializes default user accounts with signed JWT token
 | Role | Username / Email | Password | Permissions |
 | :--- | :--- | :--- | :--- |
 | **Practitioner (Doctor)** | `doctor@fhirstorm.org` | `doctor123` | Read/Write Patient records, Record Vitals & Prescriptions |
-| **Administrator** | `admin@fhirstorm.org` | `admin123` | Full system administrative access |
-| **Patient** | `patient@fhirstorm.org` | `patient123` | Patient self-service portal |
 
 ### Example JWT Login Request
 

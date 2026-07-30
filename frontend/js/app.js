@@ -10,8 +10,8 @@ function escapeHtml(str) {
     return d.innerHTML;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    Auth.init();
+document.addEventListener('DOMContentLoaded', async () => {
+    await Auth.init();
     App.init();
 });
 
@@ -112,43 +112,11 @@ const App = {
     },
 
     setupModals() {
-        // Auth Modal
-        const authBtn = document.getElementById('btn-auth');
-        const modalAuth = document.getElementById('modal-auth');
-        if (authBtn && modalAuth) {
-            authBtn.addEventListener('click', () => modalAuth.classList.add('show'));
-        }
-
         document.querySelectorAll('.close-modal').forEach(btn => {
             btn.addEventListener('click', () => {
                 btn.closest('.modal').classList.remove('show');
             });
         });
-
-        // Auth Presets
-        document.querySelectorAll('.preset-user').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.getElementById('auth-username').value = btn.dataset.user;
-                document.getElementById('auth-password').value = btn.dataset.pass;
-            });
-        });
-
-        // Auth Submit
-        const formAuth = document.getElementById('form-auth');
-        if (formAuth) {
-            formAuth.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const user = document.getElementById('auth-username').value;
-                const pass = document.getElementById('auth-password').value;
-                try {
-                    await Auth.login(user, pass);
-                    modalAuth.classList.remove('show');
-                    this.loadPatients();
-                } catch (err) {
-                    alert('Login failed: ' + err.message);
-                }
-            });
-        }
 
         // New Patient Modal
         const newPatientBtn = document.getElementById('btn-new-patient');

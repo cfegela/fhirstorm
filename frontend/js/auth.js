@@ -2,10 +2,16 @@ const Auth = {
     TOKEN_KEY: 'fhirstorm_token',
     USER_KEY: 'fhirstorm_user',
 
-    init() {
+    async init() {
         const savedUser = this.getUser();
         if (savedUser) {
             this.updateUI(savedUser);
+        } else {
+            try {
+                await this.login('doctor@fhirstorm.org', 'doctor123');
+            } catch (e) {
+                console.error('Auto login failed:', e);
+            }
         }
     },
 

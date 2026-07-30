@@ -36,14 +36,11 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initUsers() {
-        if (!userRepository.existsByUsername("admin@fhirstorm.org")) {
-            userRepository.save(new UserEntity("admin@fhirstorm.org", passwordEncoder.encode("admin123"), "Dr. Sarah Connor (Admin)", "ROLE_ADMIN"));
-        }
+        userRepository.findByUsername("admin@fhirstorm.org").ifPresent(userRepository::delete);
+        userRepository.findByUsername("patient@fhirstorm.org").ifPresent(userRepository::delete);
+
         if (!userRepository.existsByUsername("doctor@fhirstorm.org")) {
             userRepository.save(new UserEntity("doctor@fhirstorm.org", passwordEncoder.encode("doctor123"), "Dr. Alexander Fleming", "ROLE_PRACTITIONER"));
-        }
-        if (!userRepository.existsByUsername("patient@fhirstorm.org")) {
-            userRepository.save(new UserEntity("patient@fhirstorm.org", passwordEncoder.encode("patient123"), "Jane Doe", "ROLE_PATIENT"));
         }
     }
 
