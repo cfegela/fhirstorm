@@ -18,24 +18,8 @@ FHIRStorm is a full-stack, containerized Patient Medical Records Management Syst
 
 ## 🚀 Quick Start (Podman Compose or Docker Compose)
 
-You can run the full application stack locally using either **Podman Compose** or **Docker Compose**:
+You can run the full application stack locally using **Docker Compose**:
 
-### Using Podman Compose
-```bash
-# Start all containers in detached mode
-podman compose up -d --build
-
-# Inspect container status
-podman ps
-
-# View backend application logs
-podman logs fhirstorm-backend -f
-
-# Stop and remove containers
-podman compose down
-```
-
-### Using Docker Compose
 ```bash
 # Start all containers
 docker compose up -d --build
@@ -49,13 +33,7 @@ docker compose down
 
 > **Tip:** The `./frontend` directory is mounted live into the Nginx container (`:ro`), allowing frontend HTML, CSS, and JS edits to take effect immediately upon browser refresh (`F5` / `Cmd` + `R`).
 
----
-
-## 🌐 Application Endpoints
-
-Once the stack is running, access the services:
-
-- **Frontend Dashboard:** [http://localhost](http://localhost)
+Once the stack is running, access the services at [http://localhost](http://localhost)
 
 ---
 
