@@ -28,10 +28,10 @@ FHIRStorm is designed to serve as a reference implementation for managing clinic
 Get the complete application stack running locally in seconds:
 
 ```bash
-# 1. Start all containers in background mode
+# Start all containers in background mode
 docker compose up -d --build
 
-# 3. Stop and clean up container resources
+# Stop and clean up container resources
 docker compose down
 ```
 
