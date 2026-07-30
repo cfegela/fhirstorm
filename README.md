@@ -1,12 +1,6 @@
-<div align="center">
-
 # FHIRStorm
 
-### **Patient Medical Records Management System**
-
 *An enterprise-ready, containerized full-stack medical records platform strictly conforming to the HL7 FHIR R4 standard.*
-
-</div>
 
 ---
 
