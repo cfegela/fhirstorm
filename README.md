@@ -31,9 +31,6 @@ Get the complete application stack running locally in seconds:
 # 1. Start all containers in background mode
 docker compose up -d --build
 
-# 2. Monitor real-time logs for the Spring Boot backend
-docker logs fhirstorm-backend -f
-
 # 3. Stop and clean up container resources
 docker compose down
 ```
@@ -41,7 +38,7 @@ docker compose down
 > [!TIP]
 > The `./frontend` directory is mounted live into the Nginx container as a read-only volume (`:ro`). Any updates made to HTML, CSS, or JS files will show up immediately in your browser upon refresh (`F5` / `Cmd` + `R`).
 
-Once the orchestrator is up, open your browser and navigate to **[http://localhost](http://localhost)**.
+Once the local environment is up, open your browser and navigate to **[http://localhost](http://localhost)**.
 
 ---
 
