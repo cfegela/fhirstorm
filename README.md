@@ -1,22 +1,16 @@
 <div align="center">
 
-# 🌊 FHIRStorm
+# FHIRStorm
 
 ### **Patient Medical Records Management System**
 
 *An enterprise-ready, containerized full-stack medical records platform strictly conforming to the HL7 FHIR R4 standard.*
 
-[![FHIR Standard - R4](https://img.shields.io/badge/FHIR-R4-0284c7?style=for-the-badge&logo=hl7)](https://hl7.org/fhir/R4/)
-[![Backend - Java 17 / Spring Boot](https://img.shields.io/badge/Backend-Java_17_--_Spring_Boot-1e3a8a?style=for-the-badge&logo=spring)](file:///Users/chrisfegela/git/cfeg/fhirstorm/backend)
-[![Frontend - Vanilla JS & CSS](https://img.shields.io/badge/Frontend-JS_&_CSS3-0f172a?style=for-the-badge&logo=javascript)](file:///Users/chrisfegela/git/cfeg/fhirstorm/frontend)
-[![Database - PostgreSQL 15](https://img.shields.io/badge/Database-PostgreSQL_15-336791?style=for-the-badge&logo=postgresql)](file:///Users/chrisfegela/git/cfeg/fhirstorm/init-db.sql)
-[![Containerized - Docker Compose](https://img.shields.io/badge/Containerized-Docker_Compose-2496ed?style=for-the-badge&logo=docker)](file:///Users/chrisfegela/git/cfeg/fhirstorm/docker-compose.yml)
-
 </div>
 
 ---
 
-## 📖 Overview
+## Overview
 
 FHIRStorm is designed to serve as a reference implementation for managing clinical data using the **HL7 FHIR R4** standard. The system is built with a highly responsive, modern clinical dashboard (inspired by the application's clean Navy and Sky Blue design system) connected to a robust Java backend powered by the industry-standard HAPI FHIR library.
 
@@ -28,7 +22,7 @@ FHIRStorm is designed to serve as a reference implementation for managing clinic
 
 ---
 
-## 📐 System Architecture
+## System Architecture
 
 ```mermaid
 graph TD
@@ -41,7 +35,7 @@ graph TD
 
 ---
 
-## 🏗️ Technology Stack
+## Technology Stack
 
 | Layer | Component | Description & Entrypoint |
 | :--- | :--- | :--- |
@@ -52,7 +46,7 @@ graph TD
 
 ---
 
-## 🚀 Quick Start (Docker Compose)
+## Quick Start (Docker Compose)
 
 Get the complete application stack running locally in seconds:
 
@@ -74,7 +68,7 @@ Once the orchestrator is up, open your browser and navigate to **[http://localho
 
 ---
 
-## 🔐 Preset Accounts & JWT Authentication
+## Preset Accounts & JWT Authentication
 
 All requests accessing FHIR APIs must include a signed JWT Bearer Token. Default roles are pre-seeded in the database:
 
@@ -94,7 +88,7 @@ curl -X POST http://localhost/api/auth/login \
 
 ---
 
-## 🩺 Supported FHIR R4 Resources & Operations
+## Supported FHIR R4 Resources & Operations
 
 FHIRStorm provides complete CRUD RESTful endpoints adhering to HL7 FHIR specification:
 
@@ -113,7 +107,7 @@ FHIRStorm provides complete CRUD RESTful endpoints adhering to HL7 FHIR specific
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 fhirstorm/
