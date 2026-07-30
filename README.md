@@ -19,7 +19,7 @@ FHIRStorm is designed to serve as a reference implementation for managing clinic
 | **Frontend** | Vanilla JS (ES6+), HTML5, CSS3 |
 | **Backend API** | Java 21, Spring Boot 3.x, HAPI FHIR R4 |
 | **Database** | PostgreSQL 17 |
-| **Orchestration** | Podman / Docker Compose |
+| **Local Development** | Docker Compose |
 
 ---
 
