@@ -17,8 +17,8 @@ FHIRStorm is designed to serve as a reference implementation for managing clinic
 | Layer | Component | Description & Entrypoint |
 | :--- | :--- | :--- |
 | **Frontend** | Vanilla JS (ES6+), HTML5, CSS3 | Navy-dark and sky-blue styling system. [frontend/css/styles.css](file:///Users/chrisfegela/git/cfeg/fhirstorm/frontend/css/styles.css) & [frontend/index.html](file:///Users/chrisfegela/git/cfeg/fhirstorm/frontend/index.html) |
-| **Backend API** | Java 17, Spring Boot, HAPI FHIR R4 | Production-grade FHIR resource handler. [backend/](file:///Users/chrisfegela/git/cfeg/fhirstorm/backend) (Main application: [FhirstormApplication.java](file:///Users/chrisfegela/git/cfeg/fhirstorm/backend/src/main/java/com/fhirstorm/FhirstormApplication.java)) |
-| **Database** | PostgreSQL 15 | Persistent SQL tables serving FHIR schema. Configured via [init-db.sql](file:///Users/chrisfegela/git/cfeg/fhirstorm/init-db.sql) |
+| **Backend API** | Java 21, Spring Boot 3.x, HAPI FHIR R4 | Production-grade FHIR resource handler. [backend/](file:///Users/chrisfegela/git/cfeg/fhirstorm/backend) (Main application: [FhirstormApplication.java](file:///Users/chrisfegela/git/cfeg/fhirstorm/backend/src/main/java/com/fhirstorm/FhirstormApplication.java)) |
+| **Database** | PostgreSQL 17 | Persistent SQL tables serving FHIR schema. Configured via [init-db.sql](file:///Users/chrisfegela/git/cfeg/fhirstorm/init-db.sql) |
 | **Orchestration** | Podman / Docker Compose | Single-command multi-service orchestration. [docker-compose.yml](file:///Users/chrisfegela/git/cfeg/fhirstorm/docker-compose.yml) |
 
 ---
