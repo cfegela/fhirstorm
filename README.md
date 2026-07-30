@@ -16,7 +16,7 @@ FHIRStorm is a full-stack, containerized Patient Medical Records Management Syst
 
 ---
 
-## 🚀 Quick Start (Podman Compose or Docker Compose)
+## 🚀 Quick Start (Docker Compose)
 
 You can run the full application stack locally using **Docker Compose**:
 
