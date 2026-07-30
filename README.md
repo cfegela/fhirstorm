@@ -1,9 +1,5 @@
 # FHIRStorm
 
-*An enterprise-ready, containerized full-stack medical records platform strictly conforming to the HL7 FHIR R4 standard.*
-
----
-
 ## Overview
 
 FHIRStorm is designed to serve as a reference implementation for managing clinical data using the **HL7 FHIR R4** standard. The system is built with a highly responsive, modern clinical dashboard (inspired by the application's clean Navy and Sky Blue design system) connected to a robust Java backend powered by the industry-standard HAPI FHIR library.
