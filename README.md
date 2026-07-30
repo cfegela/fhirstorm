@@ -12,19 +12,6 @@ FHIRStorm is designed to serve as a reference implementation for managing clinic
 
 ---
 
-## System Architecture
-
-```mermaid
-graph TD
-    Client[Browser Client / Clinical Portal] -->|HTTP / JS App| WebServer[Nginx Reverse Proxy]
-    WebServer -->|Static Files / CSS / JS| Client
-    WebServer -->|Protected API Requests| AuthFilter[Spring Security Filter / JWT Validation]
-    AuthFilter -->|Authorized Endpoint| ResourceProvider[HAPI FHIR Resource Providers]
-    ResourceProvider -->|SQL / JSON Queries| DB[(PostgreSQL Database)]
-```
-
----
-
 ## Technology Stack
 
 | Layer | Component | Description & Entrypoint |
