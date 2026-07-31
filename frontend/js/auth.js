@@ -4,9 +4,28 @@ const Auth = {
 
     async init() {
         const savedUser = this.getUser();
-        if (savedUser) {
-            this.updateUI(savedUser);
-        } else {
+        const token = this.getToken();
+        let isValid = false;
+
+        if (savedUser && token) {
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    isValid = true;
+                    this.updateUI(savedUser);
+                } else {
+                    console.warn('Saved token is invalid or expired. Cleaning up.');
+                    localStorage.removeItem(this.TOKEN_KEY);
+                    localStorage.removeItem(this.USER_KEY);
+                }
+            } catch (e) {
+                console.error('Failed to verify token:', e);
+            }
+        }
+
+        if (!isValid) {
             try {
                 await this.login('doctor@fhirstorm.org', 'doctor123');
             } catch (e) {
