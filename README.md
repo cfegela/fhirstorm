@@ -1,11 +1,6 @@
 # FHIRStorm
 
-FHIRStorm is designed to serve as a reference implementation for managing clinical data using the **HL7 FHIR R4** standard. The system is built with a highly responsive, modern clinical dashboard connected to a robust Java backend powered by the industry-standard HAPI FHIR library.
-
-### Key Capabilities
-- **Strict FHIR Compliance:** Native parsing, validation, and storage of FHIR R4 resources.
-- **Clinical Dashboard:** A modern, clean frontend featuring dynamic charts, vitals monitoring, and an interactive FHIR JSON inspector.
-- **Instant Hot-Reloading:** The static assets are bind-mounted directly to Nginx, enabling local developments to compile instantly.
+FHIRStorm is designed to serve as a reference implementation for managing clinical data using strict compliance to the **HL7 FHIR R4** standard. The system is built with a highly responsive, modern clinical dashboard connected to a robust Java backend powered by the industry-standard HAPI FHIR library.
 
 ---
 
